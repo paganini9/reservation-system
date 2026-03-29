@@ -64,75 +64,89 @@ class ReservationService {
   ) {
     const requestedAt = new Date();
 
-    return prisma.$transaction(async (tx) => {
-      // SELECT FOR UPDATE SKIP LOCKED — 동시 예약 방어
-      const existing: any[] = await tx.$queryRaw`
-        SELECT id FROM reservations
-        WHERE space_id = ${spaceId}::uuid
-          AND date = ${date}::date
-          AND start_time = ${startTime}::time
-          AND status = 'CONFIRMED'
-          AND deleted_at IS NULL
-        FOR UPDATE SKIP LOCKED
-      `;
+    try {
+      return await prisma.$transaction(async (tx) => {
+        // SELECT FOR UPDATE SKIP LOCKED — 동시 예약 방어
+        // NOTE: Prisma tagged template은 파라미터를 text로 전달하므로
+        // uuid 컬럼은 implicit cast, date/time은 ::date/::time 사용
+        const existing: any[] = await tx.$queryRaw`
+          SELECT id FROM reservations
+          WHERE space_id = ${spaceId}
+            AND date = ${date}::date
+            AND start_time = ${startTime}::time
+            AND status = 'CONFIRMED'
+            AND deleted_at IS NULL
+          FOR UPDATE SKIP LOCKED
+        `;
 
-      if (existing.length > 0) {
+        if (existing.length > 0) {
+          const err: any = new Error('이미 예약된 시간대입니다.');
+          err.statusCode = 409;
+          err.code = 'CONFLICT';
+          throw err;
+        }
+
+        // reservation_number 생성: R + YYYYMMDD + 5자리 순번
+        const maxSeq: any[] = await tx.$queryRaw`
+          SELECT COALESCE(MAX(CAST(RIGHT(reservation_number, 5) AS INTEGER)), 0) + 1 AS next_seq
+          FROM reservations
+          WHERE date = ${date}::date AND deleted_at IS NULL
+        `;
+        const seq = Number(maxSeq[0].next_seq);
+        const dateStr = date.replace(/-/g, '');
+        const reservationNumber = `R${dateStr}${String(seq).padStart(5, '0')}`;
+
+        const reservation = await tx.reservation.create({
+          data: {
+            reservation_number: reservationNumber,
+            user_id: userId,
+            space_id: spaceId,
+            date: new Date(date),
+            start_time: timeToDate(startTime),
+            end_time: timeToDate(endTime),
+            status: 'CONFIRMED',
+            requested_at: requestedAt,
+          },
+          include: { space: true },
+        });
+
+        // 예약 확인 이메일
+        const user = await tx.user.findUnique({ where: { id: userId } });
+        if (user) {
+          const summary: ReservationSummary = {
+            reservationId: reservation.id,
+            reservationNumber: reservation.reservation_number,
+            spaceName: reservation.space.name,
+            date,
+            startTime,
+            endTime,
+          };
+          emailService.sendReservationConfirmEmail(user.email, summary).catch(() => {});
+        }
+
+        return {
+          reservationId: reservation.id,
+          reservationNumber: reservation.reservation_number,
+          spaceId: reservation.space_id,
+          spaceName: reservation.space.name,
+          date,
+          startTime,
+          endTime,
+          status: reservation.status,
+          createdAt: reservation.created_at.toISOString(),
+        };
+      });
+    } catch (error: any) {
+      // 유니크 인덱스 위반 (동시 예약 충돌) → 409 Conflict
+      if (error.code === 'P2002' || (error.code === 'CONFLICT')) {
+        if (error.code === 'CONFLICT') throw error; // 이미 처리된 에러
         const err: any = new Error('이미 예약된 시간대입니다.');
         err.statusCode = 409;
         err.code = 'CONFLICT';
         throw err;
       }
-
-      // reservation_number 생성: R + YYYYMMDD + 5자리 순번
-      const maxSeq: any[] = await tx.$queryRaw`
-        SELECT COALESCE(MAX(CAST(RIGHT(reservation_number, 5) AS INTEGER)), 0) + 1 AS next_seq
-        FROM reservations
-        WHERE date = ${date}::date AND deleted_at IS NULL
-      `;
-      const seq = Number(maxSeq[0].next_seq);
-      const dateStr = date.replace(/-/g, '');
-      const reservationNumber = `R${dateStr}${String(seq).padStart(5, '0')}`;
-
-      const reservation = await tx.reservation.create({
-        data: {
-          reservation_number: reservationNumber,
-          user_id: userId,
-          space_id: spaceId,
-          date: new Date(date),
-          start_time: timeToDate(startTime),
-          end_time: timeToDate(endTime),
-          status: 'CONFIRMED',
-          requested_at: requestedAt,
-        },
-        include: { space: true },
-      });
-
-      // 예약 확인 이메일
-      const user = await tx.user.findUnique({ where: { id: userId } });
-      if (user) {
-        const summary: ReservationSummary = {
-          reservationId: reservation.id,
-          reservationNumber: reservation.reservation_number,
-          spaceName: reservation.space.name,
-          date,
-          startTime,
-          endTime,
-        };
-        emailService.sendReservationConfirmEmail(user.email, summary).catch(() => {});
-      }
-
-      return {
-        reservationId: reservation.id,
-        reservationNumber: reservation.reservation_number,
-        spaceId: reservation.space_id,
-        spaceName: reservation.space.name,
-        date,
-        startTime,
-        endTime,
-        status: reservation.status,
-        createdAt: reservation.created_at.toISOString(),
-      };
-    });
+      throw error;
+    }
   }
 
   /**
@@ -231,7 +245,7 @@ class ReservationService {
       // 새 시간대 선착순 잠금
       const conflict: any[] = await tx.$queryRaw`
         SELECT id FROM reservations
-        WHERE space_id = ${spaceId}::uuid
+        WHERE space_id = ${spaceId}
           AND date = ${date}::date
           AND start_time = ${startTime}::time
           AND status = 'CONFIRMED'

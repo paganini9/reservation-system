@@ -94,7 +94,7 @@ class AdminService {
       // SELECT FOR UPDATE SKIP LOCKED — 동시 예약 방어
       const existing: any[] = await tx.$queryRaw`
         SELECT id FROM reservations
-        WHERE space_id = ${spaceId}::uuid
+        WHERE space_id = ${spaceId}
           AND date = ${date}::date
           AND start_time = ${startTime}::time
           AND status = 'CONFIRMED'
@@ -192,7 +192,7 @@ class AdminService {
       // 새 시간대 충돌 검사
       const conflict: any[] = await tx.$queryRaw`
         SELECT id FROM reservations
-        WHERE space_id = ${spaceId}::uuid
+        WHERE space_id = ${spaceId}
           AND date = ${date}::date
           AND start_time = ${startTime}::time
           AND status = 'CONFIRMED'
