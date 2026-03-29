@@ -1,0 +1,267 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filterLabel {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.filterInput {
+  padding: 6px 10px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  color: var(--gray-900);
+}
+
+.filterInput:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.section {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table th {
+  text-align: left;
+  padding: 10px 12px;
+  color: var(--gray-500);
+  font-weight: 500;
+  border-bottom: 1px solid var(--gray-200);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--gray-100);
+  color: var(--gray-900);
+}
+
+.table tbody tr:hover {
+  background-color: var(--gray-50);
+}
+
+.roleBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.roleAdmin {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.roleStudent {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.roleGeneral {
+  background-color: var(--gray-100);
+  color: var(--gray-700);
+}
+
+.penaltyHigh {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.suspended {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+}
+
+.emptyRow {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--gray-500);
+}
+
+/* Penalty Modal */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+}
+
+.modalTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.modalField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.modalFieldLabel {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.modalInput {
+  padding: 8px 12px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+}
+
+.modalTextarea {
+  padding: 8px 12px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  min-height: 60px;
+  resize: vertical;
+}
+
+.modalActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* Clubs section */
+.clubItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+}
+
+.clubInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.clubName {
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.clubUser {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+}
+
+.clubActions {
+  display: flex;
+  gap: 6px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.pageBtn {
+  padding: 4px 12px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  background: #fff;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  color: var(--gray-700);
+}
+
+.pageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+}
+
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+  }
+
+  .clubItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

@@ -1,0 +1,178 @@
+.container {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.navBtn {
+  background: none;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  padding: 4px 12px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: var(--gray-700);
+  transition: background-color 0.15s;
+}
+
+.navBtn:hover {
+  background-color: var(--gray-100);
+}
+
+.weekRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.weekDay {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  padding: 4px 0;
+}
+
+.weekDay:first-child {
+  color: var(--danger);
+}
+
+.weekDay:last-child {
+  color: var(--primary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.dayCell {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.1s;
+  border: 2px solid transparent;
+}
+
+.dayCell:hover:not(.disabled):not(.empty) {
+  transform: scale(1.05);
+}
+
+.empty {
+  cursor: default;
+}
+
+.available {
+  background-color: #d1fae5;
+  color: var(--gray-900);
+}
+
+.available:hover {
+  background-color: #a7f3d0;
+}
+
+.holiday {
+  background-color: var(--gray-200);
+  color: var(--gray-500);
+  cursor: default;
+}
+
+.unavailable {
+  border-color: var(--warning);
+  color: var(--gray-500);
+  cursor: default;
+}
+
+.past {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.selected {
+  background-color: var(--primary) !important;
+  color: #fff !important;
+  border-color: var(--primary-hover);
+}
+
+.disabled {
+  cursor: default;
+}
+
+.dayLabel {
+  font-size: 0.5rem;
+  line-height: 1;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.legend {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.legendAvailable {
+  background-color: #d1fae5;
+}
+
+.legendHoliday {
+  background-color: var(--gray-200);
+}
+
+.legendUnavailable {
+  border: 2px solid var(--warning);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 12px;
+  }
+
+  .dayCell {
+    font-size: 0.75rem;
+  }
+
+  .dayLabel {
+    display: none;
+  }
+}

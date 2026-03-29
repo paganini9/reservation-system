@@ -1,0 +1,79 @@
+.container {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 16px;
+}
+
+.group {
+  margin-bottom: 16px;
+}
+
+.groupTitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 8px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+  background: #fff;
+}
+
+.card:hover {
+  border-color: var(--primary);
+  background-color: #eff6ff;
+}
+
+.cardSelected {
+  border-color: var(--primary);
+  background-color: #dbeafe;
+}
+
+.cardName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-900);
+  text-align: center;
+}
+
+.cardCapacity {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  margin-top: 4px;
+}
+
+.noDate {
+  text-align: center;
+  padding: 24px 0;
+  color: var(--gray-500);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .cards {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}
