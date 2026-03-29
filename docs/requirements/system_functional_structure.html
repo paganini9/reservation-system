@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시스템 기능 구조도</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f4f0; color: #1a1a18; padding: 32px 24px; }
+.wrap { max-width: 860px; margin: 0 auto; }
+h1 { font-size: 18px; font-weight: 500; margin-bottom: 20px; color: #1a1a18; }
+
+.legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #5f5e5a; }
+
+.tag { font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 500; }
+.tag-fe  { background: #EEEDFE; color: #3C3489; }
+.tag-be  { background: #E1F5EE; color: #085041; }
+.tag-db  { background: #E6F1FB; color: #0C447C; }
+.tag-ext { background: #FAEEDA; color: #633806; }
+
+.section { margin-bottom: 24px; }
+.section-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.section-title { font-size: 14px; font-weight: 500; color: #1a1a18; }
+
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+.feat { padding: 8px 10px; border-radius: 6px; background: #ffffff; border: 1px solid #d3d1c7; }
+.feat-name { font-size: 12px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; }
+.tag-row { display: flex; gap: 4px; flex-wrap: wrap; }
+
+.divider { height: 1px; background: #d3d1c7; margin: 20px 0; }
+
+.bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.col-feats { display: flex; flex-direction: column; gap: 6px; }
+
+@media (max-width: 600px) {
+  .grid-3 { grid-template-columns: 1fr 1fr; }
+  .bottom-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>시스템 기능 구조도</h1>
+
+  <div class="legend">
+    <span class="leg"><span class="tag tag-fe">FE</span> Frontend</span>
+    <span class="leg"><span class="tag tag-be">BE</span> Backend</span>
+    <span class="leg"><span class="tag tag-db">DB</span> Database</span>
+    <span class="leg"><span class="tag tag-ext">EXT</span> External</span>
+  </div>
+
+  <!-- 사용자 인증 -->
+  <div class="section">
+    <div class="section-hd">
+      <span class="tag tag-fe">FE</span>
+      <span class="tag tag-be">BE</span>
+      <span class="tag tag-db">DB</span>
+      <span class="section-title">사용자 인증 및 계정 관리</span>
+    </div>
+    <div class="grid-3">
+      <div class="feat"><div class="feat-name">학생 회원가입</div><div class="tag-row"><span class="tag tag-fe">FE</span><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+      <div class="feat"><div class="feat-name">일반인 회원가입</div><div class="tag-row"><span class="tag tag-fe">FE</span><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+      <div class="feat"><div class="feat-name">이메일 인증 (3분 링크)</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-ext">EXT</span></div></div>
+      <div class="feat"><div class="feat-name">로그인 / JWT 발급</div><div class="tag-row"><span class="tag tag-fe">FE</span><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+      <div class="feat"><div class="feat-name">임시 비밀번호 재설정</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-ext">EXT</span></div></div>
+      <div class="feat"><div class="feat-name">내 정보 / 비밀번호 변경</div><div class="tag-row"><span class="tag tag-fe">FE</span><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 예약 관리 -->
+  <div class="section">
+    <div class="section-hd">
+      <span class="tag tag-fe">FE</span>
+      <span class="tag tag-be">BE</span>
+      <span class="tag tag-db">DB</span>
+      <span class="section-title">예약 관리</span>
+    </div>
+    <div class="grid-3">
+      <div class="feat"><div class="feat-name">달력 · 공간 현황 조회</div><div class="tag-row"><span class="tag tag-fe">FE</span><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+      <div class="feat"><div class="feat-name">예약 생성 (선착순)</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+      <div class="feat"><div class="feat-name">예약 수정 (원자적 교체)</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+      <div class="feat"><div class="feat-name">예약 취소 · 패널티 부과</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+      <div class="feat"><div class="feat-name">내 예약 목록 · 상세</div><div class="tag-row"><span class="tag tag-fe">FE</span><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+      <div class="feat"><div class="feat-name">예약 건수 한도 검증</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 관리자 기능 -->
+  <div class="section">
+    <div class="section-hd">
+      <span class="tag tag-be">BE</span>
+      <span class="tag tag-db">DB</span>
+      <span class="section-title">관리자 기능</span>
+    </div>
+    <div class="grid-3">
+      <div class="feat"><div class="feat-name">전체 예약 현황 조회</div><div class="tag-row"><span class="tag tag-fe">FE</span><span class="tag tag-be">BE</span></div></div>
+      <div class="feat"><div class="feat-name">예약 강제 수정 · 취소</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+      <div class="feat"><div class="feat-name">창업동아리 승인 · 반려</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+      <div class="feat"><div class="feat-name">패널티 조회 · 수동 조정</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+      <div class="feat"><div class="feat-name">운영 불가일 등록 · 관리</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+      <div class="feat"><div class="feat-name">예약 현황 출력 (PDF)</div><div class="tag-row"><span class="tag tag-fe">FE</span><span class="tag tag-be">BE</span></div></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 알림 + 시스템 -->
+  <div class="bottom-grid">
+    <div class="section">
+      <div class="section-hd">
+        <span class="tag tag-ext">EXT</span>
+        <span class="section-title">알림 · 이메일</span>
+      </div>
+      <div class="col-feats">
+        <div class="feat"><div class="feat-name">예약 확인 · 수정 · 취소 메일</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-ext">EXT</span></div></div>
+        <div class="feat"><div class="feat-name">임시 비밀번호 발송</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-ext">EXT</span></div></div>
+        <div class="feat"><div class="feat-name">창업동아리 승인 결과</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-ext">EXT</span></div></div>
+        <div class="feat"><div class="feat-name">패널티 누적 · 정지 안내</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-ext">EXT</span></div></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-hd">
+        <span class="tag tag-be">BE</span>
+        <span class="tag tag-ext">EXT</span>
+        <span class="section-title">시스템 · 스케줄러</span>
+      </div>
+      <div class="col-feats">
+        <div class="feat"><div class="feat-name">공휴일 API 자동 연동 (매년)</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-ext">EXT</span></div></div>
+        <div class="feat"><div class="feat-name">1/100초 선착순 타임스탬프</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+        <div class="feat"><div class="feat-name">패널티 1개월 자동 리셋 (cron)</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+        <div class="feat"><div class="feat-name">관리자 권한 부여</div><div class="tag-row"><span class="tag tag-be">BE</span><span class="tag tag-db">DB</span></div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

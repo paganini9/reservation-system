@@ -1,0 +1,16 @@
+export const PENALTY = {
+  SAME_DAY_CANCEL_SCORE: 1,
+  SUSPENSION_THRESHOLD: 5,
+  SUSPENSION_DAYS: 30,
+} as const;
+
+export const RESERVATION_LIMIT = {
+  NORMAL_STUDENT: 3,
+  STARTUP_CLUB_APPROVED: 6,
+  GENERAL: 3,
+} as const;
+
+export const BOOKING_RANGE_DAYS = {
+  STUDENT: 30,
+  GENERAL: 14,
+} as const;
