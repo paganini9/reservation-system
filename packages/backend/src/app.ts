@@ -4,6 +4,8 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { errorHandler } from './middleware/error-handler';
 import authRouter from './routes/auth.routes';
+import reservationRouter from './routes/reservation.routes';
+import spaceRouter from './routes/space.routes';
 
 export function createApp() {
   const app = express();
@@ -14,8 +16,8 @@ export function createApp() {
 
   // Routes (각 Phase에서 에이전트가 등록)
   app.use('/api/auth', authRouter);
-  // app.use('/api/reservations', reservationRouter);
-  // app.use('/api/spaces', spaceRouter);
+  app.use('/api/reservations', reservationRouter);
+  app.use('/api', spaceRouter);
   // app.use('/api/admin', adminRouter);
 
   app.use(errorHandler);
