@@ -1,5 +1,3 @@
-__pycache__/
-*.pyc
 node_modules/
 .env
 .env.development
@@ -8,6 +6,4 @@ dist/
 .next/
 *.log
 .DS_Store
-venv/
-.vscode/
 worktrees/

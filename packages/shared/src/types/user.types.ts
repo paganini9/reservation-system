@@ -12,8 +12,10 @@ export interface User {
   clubName?: string;
   startupClubApproved: boolean;
   emailVerified: boolean;
+  isTempPassword: boolean;
   penaltyScore: number;
   isSuspended: boolean;
+  suspendedAt?: string | null;
   suspendedUntil?: string | null;
   reservationLimit: number;
   createdAt: string;
@@ -50,6 +52,7 @@ export interface LoginResponse {
   role: UserRole;
   studentType?: StudentType;
   startupClubApproved: boolean;
+  isTempPassword: boolean;
   penaltyScore: number;
   isSuspended: boolean;
 }
