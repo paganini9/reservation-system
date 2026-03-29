@@ -42,38 +42,48 @@ enum HolidaySource {
 }
 
 model User {
-  id                    String      @id @default(uuid())
-  name                  String      @db.VarChar(50)
-  email                 String      @unique @db.VarChar(255)
-  password_hash         String      @db.VarChar(255)
+  id                    String       @id @default(uuid())
+  name                  String       @db.VarChar(50)
+  email                 String       @unique @db.VarChar(255)
+  password_hash         String       @db.VarChar(255)
   role                  UserRole
   student_type          StudentType?
-  university            String?     @db.VarChar(100)
-  student_id            String?     @db.VarChar(20)
-  club_name             String?     @db.VarChar(100)
-  startup_club_approved Boolean     @default(false)
-  email_verified        Boolean     @default(false)
-  penalty_score         Int         @default(0)
-  is_suspended          Boolean     @default(false)
-  suspended_until       DateTime?   @db.Timestamptz()
-  created_at            DateTime    @default(now()) @db.Timestamptz()
-  updated_at            DateTime    @updatedAt @db.Timestamptz()
-  deleted_at            DateTime?   @db.Timestamptz()
+  university            String?      @db.VarChar(100)
+  student_id            String?      @db.VarChar(20)
+  club_name             String?      @db.VarChar(100)
+  startup_club_approved Boolean      @default(false)
+  email_verified        Boolean      @default(false)
+
+  // SC-S0, SC-G0: 임시 비밀번호 발급 시 true → 변경 완료 시 false
+  is_temp_password      Boolean      @default(false)
+
+  penalty_score         Int          @default(0)
+  is_suspended          Boolean      @default(false)
+
+  // SC-A8: 정지 시작일·종료 예정일 모두 표시 필요
+  suspended_at          DateTime?    @db.Timestamptz()
+  suspended_until       DateTime?    @db.Timestamptz()
+
+  created_at            DateTime     @default(now()) @db.Timestamptz()
+  updated_at            DateTime     @updatedAt @db.Timestamptz()
+  deleted_at            DateTime?    @db.Timestamptz()
 
   reservations              Reservation[]
   penalty_logs              PenaltyLog[]
   startup_club_approval     StartupClubApproval?
   email_verification_tokens EmailVerificationToken[]
+  unavailable_dates_created UnavailableDate[]        @relation("CreatedBy")
+  unavailable_dates_updated UnavailableDate[]        @relation("UpdatedBy")
 
   @@map("users")
 }
 
 model Space {
-  id         String    @id @default(uuid())
-  name       String    @db.VarChar(50)
-  type       SpaceType
-  capacity   Int
-  is_active  Boolean   @default(true)
+  id        String    @id @default(uuid())
+  name      String    @db.VarChar(50)
+  type      SpaceType
+  capacity  Int
+  is_active Boolean   @default(true)
 
   reservations Reservation[]
 
@@ -81,36 +91,52 @@ model Space {
 }
 
 model Reservation {
-  id                  String            @id @default(uuid())
-  reservation_number  String            @unique @db.VarChar(20)
-  user_id             String
-  space_id            String
-  date                DateTime          @db.Date
-  start_time          DateTime          @db.Time()
-  end_time            DateTime          @db.Time()
-  status              ReservationStatus @default(CONFIRMED)
-  cancelled_by_admin  Boolean           @default(false)
-  admin_reason        String?           @db.Text
-  requested_at        DateTime          @db.Timestamptz(6)
-  created_at          DateTime          @default(now()) @db.Timestamptz()
-  updated_at          DateTime          @updatedAt @db.Timestamptz()
-  deleted_at          DateTime?         @db.Timestamptz()
+  id String @id @default(uuid())
+
+  // SC-S3, SC-A5: 'R' + YYYYMMDD + NNNNN (날짜별 순번 리셋)
+  // 생성 방식: 트랜잭션 내 날짜별 MAX+1 (전역 시퀀스 사용 안 함)
+  reservation_number String            @unique @db.VarChar(20)
+
+  user_id            String
+  space_id           String
+  date               DateTime          @db.Date
+  start_time         DateTime          @db.Time()
+  end_time           DateTime          @db.Time()
+  status             ReservationStatus @default(CONFIRMED)
+
+  // SC-A7: 관리자 강제 취소 시 패널티 미부과 판단 기준
+  cancelled_by_admin Boolean           @default(false)
+
+  // SC-A6, SC-A7: 관리자 수정·취소 사유
+  admin_reason       String?           @db.Text
+
+  // SC-S3, SC-G3: 1/100초 정밀도 — 선착순 타임스탬프 비교 필수
+  requested_at       DateTime          @db.Timestamptz(6)
+
+  created_at         DateTime          @default(now()) @db.Timestamptz()
+  updated_at         DateTime          @updatedAt @db.Timestamptz()
+  deleted_at         DateTime?         @db.Timestamptz()
 
   user         User         @relation(fields: [user_id], references: [id])
   space        Space        @relation(fields: [space_id], references: [id])
   penalty_logs PenaltyLog[]
 
+  // 선착순 처리 성능 인덱스
   @@index([space_id, date, start_time, status])
   @@map("reservations")
 }
 
 model PenaltyLog {
-  id             String      @id @default(uuid())
+  id String @id @default(uuid())
+
   user_id        String
-  reservation_id String?
-  score          Int
-  reason         String      @db.VarChar(100)
-  created_at     DateTime    @default(now()) @db.Timestamptz()
+  reservation_id String? // SC-A8: 수동 조정 시 null
+
+  // +1 (당일취소), -N (수동 차감)
+  score  Int
+  reason String   @db.VarChar(100)
+
+  created_at DateTime @default(now()) @db.Timestamptz()
 
   user        User         @relation(fields: [user_id], references: [id])
   reservation Reservation? @relation(fields: [reservation_id], references: [id])
@@ -119,12 +145,16 @@ model PenaltyLog {
 }
 
 model StartupClubApproval {
-  id               String         @id @default(uuid())
-  user_id          String         @unique
-  status           ApprovalStatus @default(PENDING)
-  rejected_reason  String?        @db.Text
-  processed_at     DateTime?      @db.Timestamptz()
-  created_at       DateTime       @default(now()) @db.Timestamptz()
+  id String @id @default(uuid())
+
+  user_id         String         @unique
+  status          ApprovalStatus @default(PENDING)
+
+  // SC-A3: 반려 시 사유 입력 필수
+  rejected_reason String?        @db.Text
+
+  processed_at DateTime? @db.Timestamptz()
+  created_at   DateTime  @default(now()) @db.Timestamptz()
 
   user User @relation(fields: [user_id], references: [id])
 
@@ -147,21 +177,39 @@ model UnavailableDate {
   start_date DateTime @db.Date
   end_date   DateTime @db.Date
   reason     String   @db.VarChar(200)
+
   created_by String
   created_at DateTime @default(now()) @db.Timestamptz()
+
+  // SC-A10: "필요시 수정 또는 삭제할 수 있다" → 수정 이력 추적
+  updated_by String?
+  updated_at DateTime? @db.Timestamptz()
+
+  creator User  @relation("CreatedBy", fields: [created_by], references: [id])
+  updater User? @relation("UpdatedBy", fields: [updated_by], references: [id])
 
   @@map("unavailable_dates")
 }
 
 model EmailVerificationToken {
-  id         String    @id @default(uuid())
-  user_id    String
-  token      String    @unique @db.VarChar(255)
-  expires_at DateTime  @db.Timestamptz()
-  used_at    DateTime? @db.Timestamptz()
-  created_at DateTime  @default(now()) @db.Timestamptz()
+  id      String @id @default(uuid())
+  user_id String
+  token   String @unique @db.VarChar(255)
+
+  // 발급 후 3분
+  expires_at DateTime @db.Timestamptz()
+
+  // SC-S1: 정상 인증 완료
+  used_at DateTime? @db.Timestamptz()
+
+  // SC-S1, SC-G1: 재발송 시 기존 토큰 명시적 무효화
+  // used_at(정상 인증)과 역할 분리 — 이력 명확히 구분
+  invalidated_at DateTime? @db.Timestamptz()
+
+  created_at DateTime @default(now()) @db.Timestamptz()
 
   user User @relation(fields: [user_id], references: [id])
 
+  // 유효성 검사: expires_at > NOW() AND used_at IS NULL AND invalidated_at IS NULL
   @@map("email_verification_tokens")
 }

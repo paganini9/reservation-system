@@ -1,0 +1,70 @@
+.container {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 16px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+  background: #fff;
+  color: var(--gray-900);
+}
+
+.slot:hover:not(.booked) {
+  border-color: var(--primary);
+  background-color: #eff6ff;
+}
+
+.slotSelected {
+  border-color: var(--primary);
+  background-color: var(--primary);
+  color: #fff;
+}
+
+.slotSelected:hover {
+  background-color: var(--primary-hover);
+}
+
+.booked {
+  background-color: var(--gray-100);
+  color: var(--gray-500);
+  cursor: not-allowed;
+  border-color: var(--gray-200);
+  text-decoration: line-through;
+}
+
+.noSpace {
+  text-align: center;
+  padding: 24px 0;
+  color: var(--gray-500);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

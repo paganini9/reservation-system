@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import './globals.css';
 
 export const metadata: Metadata = {
   title: '창업공간 예약시스템 — 대구대학교 비호관 3층',
