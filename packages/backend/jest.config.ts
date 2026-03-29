@@ -4,7 +4,7 @@ const config: Config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/tests'],
-  setupFilesAfterEach: ['<rootDir>/tests/setup.ts'],
+  setupFiles: ['<rootDir>/tests/setup.ts'],
   testTimeout: 10000, // 통합 테스트 기본 10초
   projects: [
     {

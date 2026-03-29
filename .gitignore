@@ -1,4 +1,4 @@
-__pychche__/
+__pycache__/
 *.pyc
 node_modules/
 .env
@@ -10,3 +10,4 @@ dist/
 .DS_Store
 venv/
 .vscode/
+worktrees/
