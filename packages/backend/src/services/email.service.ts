@@ -22,7 +22,7 @@ class EmailService {
    * 이메일 인증 링크 발송
    */
   async sendVerificationEmail(to: string, token: string): Promise<void> {
-    const verifyUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'}/auth/verify-email?token=${token}`;
+    const verifyUrl = `${process.env.VERIFY_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'}/auth/verify-email?token=${token}`;
 
     await this.send(to, '창업공간 예약시스템 — 이메일 인증', `
       <div style="font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -173,6 +173,20 @@ class EmailService {
         </tr>
       </table>
     `;
+  }
+
+  /**
+   * 관리자 커스텀 이메일 발송
+   */
+  async sendCustomEmail(to: string, subject: string, body: string): Promise<void> {
+    await this.send(to, `창업공간 예약시스템 — ${subject}`, `
+      <div style="font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #2563eb;">${subject}</h2>
+        <div style="white-space: pre-wrap; line-height: 1.6;">${body}</div>
+        <hr style="margin-top: 30px; border: none; border-top: 1px solid #e5e7eb;" />
+        <p style="color: #6b7280; font-size: 12px;">본 메일은 대구대학교 창업공간 예약시스템에서 발송되었습니다.</p>
+      </div>
+    `);
   }
 
   /**

@@ -16,6 +16,9 @@ import {
   getUserPenalty,
   adjustPenalty,
   grantAdmin,
+  bulkDeleteUsers,
+  bulkChangeRole,
+  bulkSendEmail,
   getReservationReport,
 } from '../controllers/admin.controller';
 
@@ -42,6 +45,9 @@ router.delete('/unavailable-dates/:id', deleteUnavailableDate);
 
 // ─── 사용자 관리 ───
 router.get('/users', getUsers);
+router.post('/users/bulk/delete', bulkDeleteUsers);
+router.patch('/users/bulk/role', bulkChangeRole);
+router.post('/users/bulk/email', bulkSendEmail);
 router.get('/users/:userId/penalty', getUserPenalty);
 router.patch('/users/:userId/penalty', adjustPenalty);
 router.post('/users/:userId/grant-admin', grantAdmin);

@@ -51,6 +51,7 @@ export default function LoginPage() {
 
   return (
     <>
+      <h2 className={styles.systemName}>대구대학교 창업공간 예약 시스템</h2>
       <h1 className={styles.title}>로그인</h1>
 
       {isTempPassword && (

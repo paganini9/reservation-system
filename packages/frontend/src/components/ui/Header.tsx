@@ -32,7 +32,7 @@ export default function Header() {
               내 정보
             </Link>
             {user.role === 'ADMIN' && (
-              <Link href="/admin" className={styles.navLink}>
+              <Link href="/admin/dashboard" className={styles.navLink}>
                 관리
               </Link>
             )}
