@@ -109,12 +109,15 @@ class HolidayService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // 사용자 역할에 따른 예약 가능 기간
-    const maxDays =
-      userRole === 'STUDENT'
+    const isAdmin = userRole === 'ADMIN';
+
+    // 사용자 역할에 따른 예약 가능 기간 (관리자는 제한 없음)
+    const maxDays = isAdmin
+      ? null
+      : userRole === 'STUDENT'
         ? BOOKING_RANGE_DAYS.STUDENT
         : BOOKING_RANGE_DAYS.GENERAL;
-    const maxDate = new Date(today.getTime() + maxDays * 24 * 60 * 60 * 1000);
+    const maxDate = maxDays ? new Date(today.getTime() + maxDays * 24 * 60 * 60 * 1000) : null;
 
     const days: CalendarDay[] = [];
 
@@ -130,7 +133,7 @@ class HolidayService {
       // 1. 주말
       if (dayOfWeek === 0 || dayOfWeek === 6) {
         type = 'HOLIDAY';
-        isSelectable = false;
+        isSelectable = isAdmin; // 관리자는 주말도 선택 가능
         label = dayOfWeek === 0 ? '일요일' : '토요일';
       }
 
@@ -138,7 +141,7 @@ class HolidayService {
       const holidayName = holidayMap.get(dateStr);
       if (holidayName) {
         type = 'HOLIDAY';
-        isSelectable = false;
+        isSelectable = isAdmin; // 관리자는 공휴일도 선택 가능
         label = holidayName;
       }
 
@@ -152,17 +155,17 @@ class HolidayService {
       });
       if (unavailable) {
         type = 'UNAVAILABLE';
-        isSelectable = false;
+        isSelectable = isAdmin; // 관리자는 운영불가일도 선택 가능
         label = unavailable.reason;
       }
 
-      // 4. 과거 날짜
+      // 4. 과거 날짜 (관리자도 과거는 불가)
       if (date < today) {
         isSelectable = false;
       }
 
-      // 5. 예약 가능 기간 초과
-      if (date > maxDate) {
+      // 5. 예약 가능 기간 초과 (관리자는 제한 없음)
+      if (maxDate && date > maxDate) {
         isSelectable = false;
       }
 
