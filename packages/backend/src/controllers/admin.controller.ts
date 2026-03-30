@@ -240,8 +240,10 @@ export async function getUsers(req: AuthRequest, res: Response, next: NextFuncti
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string, 10) || 10));
     const search = req.query.search as string | undefined;
     const role = req.query.role as string | undefined;
+    const sort = req.query.sort as string | undefined;
+    const order = req.query.order as string | undefined;
 
-    const result = await adminService.getUsers({ search, role, page, limit });
+    const result = await adminService.getUsers({ search, role, sort, order, page, limit });
 
     res.json({ success: true, data: result });
   } catch (error) {
@@ -303,6 +305,67 @@ export async function grantAdmin(req: AuthRequest, res: Response, next: NextFunc
 
     const result = await adminService.grantAdmin(userId);
 
+    res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// ──────────────────────────────────────────
+// 사용자 일괄 작업
+// ──────────────────────────────────────────
+
+/**
+ * DELETE /api/admin/users/bulk
+ */
+export async function bulkDeleteUsers(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const { userIds } = req.body;
+    if (!Array.isArray(userIds) || userIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'userIds 배열은 필수입니다.' },
+      });
+    }
+    const result = await adminService.bulkDeleteUsers(userIds);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * PATCH /api/admin/users/bulk/role
+ */
+export async function bulkChangeRole(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const { userIds, role, studentType, clubName } = req.body;
+    if (!Array.isArray(userIds) || userIds.length === 0 || !role) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'userIds와 role은 필수입니다.' },
+      });
+    }
+    const result = await adminService.bulkChangeRole(userIds, role, studentType, clubName);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * POST /api/admin/users/bulk/email
+ */
+export async function bulkSendEmail(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const { userIds, subject, body } = req.body;
+    if (!Array.isArray(userIds) || userIds.length === 0 || !subject || !body) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'userIds, subject, body는 필수입니다.' },
+      });
+    }
+    const result = await adminService.bulkSendEmail(userIds, subject, body);
     res.json({ success: true, data: result });
   } catch (error) {
     next(error);

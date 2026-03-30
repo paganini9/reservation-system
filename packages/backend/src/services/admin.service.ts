@@ -529,7 +529,7 @@ class AdminService {
   /**
    * GET /api/admin/users — 사용자 목록
    */
-  async getUsers(query: { search?: string; role?: string; page: number; limit: number }) {
+  async getUsers(query: { search?: string; role?: string; sort?: string; order?: string; page: number; limit: number }) {
     const where: Prisma.UserWhereInput = { deleted_at: null };
 
     if (query.search) {
@@ -543,10 +543,14 @@ class AdminService {
       where.role = query.role as any;
     }
 
+    const sortField = query.sort || 'created_at';
+    const sortOrder = (query.order === 'asc' ? 'asc' : 'desc') as Prisma.SortOrder;
+    const orderBy: Prisma.UserOrderByWithRelationInput = { [sortField]: sortOrder };
+
     const [items, total] = await Promise.all([
       prisma.user.findMany({
         where,
-        orderBy: { created_at: 'desc' },
+        orderBy,
         skip: (query.page - 1) * query.limit,
         take: query.limit,
       }),
@@ -683,6 +687,92 @@ class AdminService {
     });
 
     return { userId, role: 'ADMIN' as const };
+  }
+
+  // ──────────────────────────────────────────
+  // 사용자 일괄 작업
+  // ──────────────────────────────────────────
+
+  /**
+   * DELETE /api/admin/users/bulk — 사용자 일괄 삭제 (soft delete)
+   */
+  async bulkDeleteUsers(userIds: string[]) {
+    const now = new Date();
+    // 관리자 계정 제외
+    const targetIds = (await prisma.user.findMany({
+      where: { id: { in: userIds }, role: { not: 'ADMIN' }, deleted_at: null },
+      select: { id: true },
+    })).map(u => u.id);
+
+    if (targetIds.length === 0) return { deletedCount: 0 };
+
+    // 트랜잭션으로 사용자 + 관련 데이터 일괄 soft delete
+    await prisma.$transaction([
+      // 예약 soft delete
+      prisma.reservation.updateMany({
+        where: { user_id: { in: targetIds }, deleted_at: null },
+        data: { deleted_at: now, status: 'CANCELLED' },
+      }),
+      // 이메일 인증 토큰 무효화
+      prisma.emailVerificationToken.updateMany({
+        where: { user_id: { in: targetIds }, used_at: null, invalidated_at: null },
+        data: { invalidated_at: now },
+      }),
+      // 사용자 soft delete
+      prisma.user.updateMany({
+        where: { id: { in: targetIds } },
+        data: { deleted_at: now },
+      }),
+    ]);
+
+    return { deletedCount: targetIds.length };
+  }
+
+  /**
+   * PATCH /api/admin/users/bulk/role — 사용자 역할 일괄 변경
+   */
+  async bulkChangeRole(userIds: string[], role: string, studentType?: string, clubName?: string) {
+    const data: any = { role };
+
+    if (role === 'STUDENT') {
+      data.student_type = studentType || 'NORMAL';
+      if (studentType === 'STARTUP_CLUB') {
+        data.club_name = clubName || null;
+        data.startup_club_approved = false;
+      }
+    } else {
+      data.student_type = null;
+      data.club_name = null;
+      data.startup_club_approved = false;
+    }
+
+    const result = await prisma.user.updateMany({
+      where: { id: { in: userIds }, deleted_at: null },
+      data,
+    });
+    return { updatedCount: result.count };
+  }
+
+  /**
+   * POST /api/admin/users/bulk/email — 선택된 사용자들에게 이메일 발송
+   */
+  async bulkSendEmail(userIds: string[], subject: string, body: string) {
+    const users = await prisma.user.findMany({
+      where: { id: { in: userIds }, deleted_at: null },
+      select: { email: true },
+    });
+
+    let sentCount = 0;
+    for (const user of users) {
+      try {
+        await emailService.sendCustomEmail(user.email, subject, body);
+        sentCount++;
+      } catch {
+        // 개별 실패는 무시하고 계속 진행
+      }
+    }
+
+    return { sentCount, totalRecipients: users.length };
   }
 
   // ──────────────────────────────────────────

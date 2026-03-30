@@ -58,8 +58,40 @@
   border-bottom: 1px solid var(--gray-200);
 }
 
+.bulkBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius);
+  margin-top: 12px;
+}
+
+.bulkCount {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-right: 8px;
+}
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable:hover {
+  color: var(--primary);
+}
+
+.selectedRow {
+  background-color: #eff6ff !important;
+}
+
 .tableWrapper {
   overflow-x: auto;
+  margin-top: 16px;
 }
 
 .table {

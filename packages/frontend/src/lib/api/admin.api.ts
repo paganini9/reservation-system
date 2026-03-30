@@ -45,4 +45,13 @@ export const adminApi = {
 
   grantAdmin: (userId: string) =>
     api.post<any>(`/admin/users/${userId}/grant-admin`),
+
+  bulkDeleteUsers: (userIds: string[]) =>
+    api.post<any>('/admin/users/bulk/delete', { userIds }),
+
+  bulkChangeRole: (data: { userIds: string[]; role: string; studentType?: string; clubName?: string }) =>
+    api.patch<any>('/admin/users/bulk/role', data),
+
+  bulkSendEmail: (data: { userIds: string[]; subject: string; body: string }) =>
+    api.post<any>('/admin/users/bulk/email', data),
 };
